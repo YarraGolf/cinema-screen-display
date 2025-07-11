@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yarra Golf Cinema – Today</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      margin-top: 2rem;
+    }
+
+    .movie-list {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 80vh;
+    }
+
+    .movie {
+      font-size: 2.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .timestamp {
+      position: absolute;
+      bottom: 1rem;
+      font-size: 1rem;
+      opacity: 0.7;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Today's Movies</h1>
+  <div class="movie-list" id="movies">Loading...</div>
+  <div class="timestamp" id="timestamp"></div>
+
+  <script>
+    fetch('data.json')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('movies');
+        const timestamp = document.getElementById('timestamp');
+        container.innerHTML = '';
+
+        if (data.movies && data.movies.length > 0) {
+          data.movies.forEach(movie => {
+            const div = document.createElement('div');
+            div.className = 'movie';
+            div.textContent = `${movie.time} – ${movie.title}`;
+            container.appendChild(div);
+          });
+        } else {
+          container.innerHTML = '<p>No sessions listed for today.</p>';
+        }
+
+        timestamp.textContent = `Last updated: ${data.timestamp}`;
+      })
+      .catch(err => {
+        document.getElementById('movies').textContent = 'Error loading movie listings.';
+      });
+  </script>
+</body>
+</html>
