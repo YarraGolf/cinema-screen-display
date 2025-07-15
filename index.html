@@ -48,30 +48,40 @@
   <div class="movie-list" id="movies">Loading...</div>
   <div class="timestamp" id="timestamp"></div>
 
-  <script>
-    fetch('data.json')
-      .then(res => res.json())
-      .then(data => {
-        const container = document.getElementById('movies');
-        const timestamp = document.getElementById('timestamp');
-        container.innerHTML = '';
+ <script>
+  fetch('data.json')
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('movies');
+      const timestamp = document.getElementById('timestamp');
+      container.innerHTML = '';
 
-        if (data.movies && data.movies.length > 0) {
-          data.movies.forEach(movie => {
-            const div = document.createElement('div');
-            div.className = 'movie';
-            div.textContent = `${movie.time} – ${movie.title}`;
-            container.appendChild(div);
-          });
-        } else {
-          container.innerHTML = '<p>No sessions listed for today.</p>';
-        }
+      const today = new Date().toISOString().slice(0, 10); // e.g. "2025-07-15"
+      const sessions = data.body || [];
 
-        timestamp.textContent = `Last updated: ${data.timestamp}`;
-      })
-      .catch(err => {
-        document.getElementById('movies').textContent = 'Error loading movie listings.';
-      });
-  </script>
+      const todaysMovies = sessions.filter(session =>
+        session.SessionTime && session.SessionTime.startsWith(today)
+      );
+
+      if (todaysMovies.length > 0) {
+        todaysMovies.forEach(movie => {
+          const time = new Date(movie.SessionTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const div = document.createElement('div');
+          div.className = 'movie';
+          div.textContent = `${time} – ${movie.Title}`;
+          container.appendChild(div);
+        });
+      } else {
+        container.innerHTML = '<p>No sessions listed for today.</p>';
+      }
+
+      const now = new Date();
+      timestamp.textContent = `Last updated: ${now.toLocaleString()}`;
+    })
+    .catch(err => {
+      document.getElementById('movies').textContent = 'Error loading movie listings.';
+    });
+</script>
+
 </body>
 </html>
