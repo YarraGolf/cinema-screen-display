@@ -48,19 +48,38 @@
   <div class="movie-list" id="movies">Loading...</div>
   <div class="timestamp" id="timestamp"></div>
 
- <script>
+<script>
   fetch('https://raw.githubusercontent.com/YarraGolf/cinema-screen-display/main/data.json')
     .then(res => res.json())
-    .then(data => {
+    .then(raw => {
+      const decoded = atob(raw.content); // decode base64
+      const data = JSON.parse(decoded); // usable JSON
+
       const container = document.getElementById('movies');
       const timestamp = document.getElementById('timestamp');
       container.innerHTML = '';
 
-      if (data.body && data.body.length > 0) {
-        data.body.forEach(movie => {
+      const now = new Date();
+      const today = now.toISOString().split('T')[0]; // e.g. '2025-07-15'
+
+      // Filter for sessions today that haven't started yet
+      const todaySessions = data.body.filter(movie => {
+        const sessionTime = new Date(movie.SessionTime);
+        const sessionDate = sessionTime.toISOString().split('T')[0];
+        return sessionDate === today && sessionTime >= now;
+      });
+
+      // Sort by time ascending
+      todaySessions.sort((a, b) => new Date(a.SessionTime) - new Date(b.SessionTime));
+
+      if (todaySessions.length > 0) {
+        todaySessions.forEach(movie => {
           const div = document.createElement('div');
           div.className = 'movie';
-          const sessionTime = new Date(movie.SessionTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const sessionTime = new Date(movie.SessionTime).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
           div.textContent = `${sessionTime} – ${movie.Title}`;
           container.appendChild(div);
         });
@@ -75,6 +94,7 @@
       console.error(err);
     });
 </script>
+
 
 
 
