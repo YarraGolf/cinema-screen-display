@@ -51,10 +51,7 @@
  <script>
   fetch('https://raw.githubusercontent.com/YarraGolf/cinema-screen-display/main/data.json')
     .then(res => res.json())
-    .then(raw => {
-      const decoded = atob(raw.content); // decode base64
-      const data = JSON.parse(decoded); // now it's usable JSON
-
+    .then(data => {
       const container = document.getElementById('movies');
       const timestamp = document.getElementById('timestamp');
       container.innerHTML = '';
@@ -78,6 +75,7 @@
       console.error(err);
     });
 </script>
+
 
 
 </body>
