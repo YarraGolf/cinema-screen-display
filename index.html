@@ -49,7 +49,7 @@
   <div class="timestamp" id="timestamp"></div>
 
  <script>
-  fetch('data.json')
+  fetch('https://raw.githubusercontent.com/YarraGolf/cinema-screen-display/main/data.json')
     .then(res => res.json())
     .then(data => {
       const container = document.getElementById('movies');
