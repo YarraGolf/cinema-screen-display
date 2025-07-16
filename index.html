@@ -56,10 +56,9 @@
       const timestamp = document.getElementById('timestamp');
       container.innerHTML = '';
 
-      // ✅ Access data.body.body (double nested)
-      const sessions = data?.body?.body;
+      const sessions = (data && data.body && data.body.body) ? data.body.body : [];
 
-      if (Array.isArray(sessions) && sessions.length > 0) {
+      if (sessions.length > 0) {
         sessions.forEach(movie => {
           const div = document.createElement('div');
           div.className = 'movie';
