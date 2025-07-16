@@ -56,7 +56,9 @@
       const timestamp = document.getElementById('timestamp');
       container.innerHTML = '';
 
-      const sessions = (data && data.body && data.body.body) ? data.body.body : [];
+      console.log('Fetched data:', data);
+
+      const sessions = Array.isArray(data?.body?.body) ? data.body.body : [];
 
       if (sessions.length > 0) {
         sessions.forEach(movie => {
@@ -77,6 +79,7 @@
       console.error('Failed to load movie listings:', err);
     });
 </script>
+
 
 
 </body>
