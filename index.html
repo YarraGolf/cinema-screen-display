@@ -37,7 +37,7 @@
 
     .date {
       font-size: 1.4rem;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       text-shadow: 0 0 4px #fff;
       font-family: "ff-dax-compact-pro", sans-serif;
       font-weight: 700;
@@ -151,7 +151,7 @@
         const dateElement = document.getElementById('current-date');
         container.innerHTML = '';
 
-        // Set current date display
+        // Set formatted date
         const today = new Date();
         const options = { weekday: 'long', day: 'numeric', month: 'long' };
         dateElement.textContent = today.toLocaleDateString('en-AU', options);
