@@ -21,7 +21,6 @@
     }
 
     img.logo {
-      width: auto;
       height: 90px;
       margin-top: 2rem;
       filter: drop-shadow(0 0 10px white);
@@ -31,7 +30,7 @@
       font-family: "termina", sans-serif;
       font-size: 3rem;
       font-weight: 900;
-      margin: 1.2rem 0 0.8rem;
+      margin: 1.2rem 0 0.4rem;
       text-shadow: 0 0 6px #fff;
       text-align: center;
       line-height: 1;
@@ -39,7 +38,7 @@
 
     .date {
       font-size: 1.4rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.6rem;
       text-shadow: 0 0 4px #fff;
       font-family: "termina", sans-serif;
       font-weight: 900;
@@ -48,28 +47,25 @@
 
     .movie-list {
       flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       width: 100%;
       padding: 0 1rem;
       overflow: hidden;
-      margin-bottom: 0.1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .movie {
       display: flex;
       align-items: flex-start;
-      gap: 1rem;
+      gap: 0.8rem;
       margin-bottom: 1.4rem;
-      width: 100%;
-      max-width: 90vw;
       text-shadow: 0 0 4px #fff;
+      max-width: 90vw;
     }
 
     .poster {
-      width: 100px;
-      height: auto;
+      width: 85px;
       border-radius: 0.5rem;
       box-shadow: 0 0 10px #000;
       flex-shrink: 0;
@@ -111,14 +107,6 @@
       background-color: #ed008c;
     }
 
-    .divider {
-      width: 100%;
-      max-width: 400px;
-      height: 1px;
-      background-color: rgba(255, 255, 255, 0.4);
-      margin: 0.2rem auto;
-    }
-
     .timestamp {
       font-size: 0.9rem;
       opacity: 0.6;
@@ -126,34 +114,36 @@
       text-shadow: 0 0 2px #fff;
     }
 
+    /* LANDSCAPE GRID FORMAT */
     @media (orientation: landscape) {
-      .poster {
-        width: 90px;
+      .movie-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-start;
+        row-gap: 1.5rem;
+        column-gap: 2rem;
+        padding: 1rem 2rem;
+        overflow-y: auto;
       }
 
-      .movie-info .time {
-        font-size: 1.6rem;
-      }
-
-      .movie-info .title {
-        font-size: 2rem;
-      }
-
-      .tickets,
-      .session-tag {
-        font-size: 0.9rem;
-      }
-
-      h1 {
-        font-size: 2.4rem;
+      .movie {
+        flex-direction: row;
+        width: 30%;
+        min-width: 280px;
+        max-width: 320px;
       }
 
       img.logo {
         height: 80px;
       }
 
-      .divider {
-        margin: 0.4rem auto;
+      h1 {
+        font-size: 2.4rem;
+      }
+
+      .tickets, .session-tag {
+        font-size: 0.9rem;
       }
     }
   </style>
@@ -210,7 +200,6 @@
             `;
 
             container.appendChild(div);
-            container.appendChild(Object.assign(document.createElement('div'), { className: 'divider' }));
           }
         } else {
           container.innerHTML = '<p>No sessions listed for today.</p>';
