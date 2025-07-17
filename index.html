@@ -64,6 +64,7 @@
       gap: 1rem;
       text-align: left;
       margin-bottom: 2rem;
+      width: 600px;
       max-width: 90vw;
     }
 
@@ -124,9 +125,9 @@
       .movie-list {
         flex-direction: row;
         flex-wrap: wrap;
-        justify-content: flex-start;
+        justify-content: center;
         align-items: flex-start;
-        gap: 2rem;
+        gap: 1rem;
         padding: 1rem;
         overflow-y: auto;
       }
@@ -135,8 +136,8 @@
         flex-direction: row;
         align-items: center;
         text-align: left;
-        max-width: unset;
-        width: auto;
+        width: calc((100vw - 5rem) / 4);
+        max-width: none;
       }
 
       .details {
