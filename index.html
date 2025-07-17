@@ -140,7 +140,7 @@
   <div class="timestamp" id="timestamp"></div>
 
   <script>
-    fetch('https://raw.githubusercontent.com/YarraGolf/cinema-screen-display/main/data.json')
+    fetch('https://raw.githubusercontent.com/YarraGolf/cinema-screen-display/main/data.json?nocache=' + new Date().getTime())
       .then(res => res.json())
       .then(data => {
         const container = document.getElementById('movies');
