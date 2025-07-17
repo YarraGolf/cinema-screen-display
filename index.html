@@ -4,84 +4,108 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Yarra Golf Cinema – Today</title>
-
-  <!-- Load Adobe Fonts -->
   <link rel="stylesheet" href="https://use.typekit.net/oxy8ssa.css">
-
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(to bottom, #321497, #e81896, #ea7c3b);
+      background: linear-gradient(to bottom right, #321497, #e81896, #ea7c3b);
       color: #fff;
       font-family: "ff-dax-compact-pro", sans-serif;
-      text-align: center;
       height: 100vh;
+      width: 100vw;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .logo {
-      width: 60%;
-      max-width: 500px;
-      margin-top: 1rem;
-      filter: drop-shadow(0 0 10px white);
+    img.logo {
+      width: auto;
+      height: 80px;
+      margin-top: 4rem;
+      filter: drop-shadow(0 0 8px white);
     }
 
     h1 {
       font-family: "termina", sans-serif;
       font-size: 3rem;
-      margin-top: 0.5rem;
-      text-shadow: 0 0 8px white;
+      margin: 1.5rem 0 2rem;
+      text-shadow: 0 0 5px #fff;
+      font-weight: 900;
     }
 
     .movie-list {
+      flex-grow: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
-      height: 70vh;
+      width: 100%;
       padding: 0 2rem;
+      overflow-y: auto;
     }
 
     .movie {
-      font-family: "ff-dax-compact-pro", sans-serif;
-      font-size: clamp(1.5rem, 4vw, 2.5rem);
-      margin: 1rem 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-shadow: 0 0 5px white;
-      gap: 1rem;
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      width: 100%;
+      max-width: 600px;
+      text-shadow: 0 0 4px #fff;
     }
 
-    .badge {
-      background-color: #ff6e38;
-      color: #fff;
-      padding: 0.4rem 1rem;
-      border-radius: 10px;
-      font-size: 1rem;
+    .movie .time {
       font-weight: bold;
-      text-shadow: 0 0 4px white;
+      font-size: 2.2rem;
+    }
+
+    .movie .title {
+      font-size: 2.2rem;
+      margin: 0.4rem 0;
+    }
+
+    .movie .tickets {
+      background-color: #ff6e38;
+      color: white;
+      padding: 0.2rem 1rem;
+      border-radius: 1rem;
+      display: inline-block;
+      font-size: 1.6rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .divider {
+      width: 100%;
+      max-width: 600px;
+      height: 1px;
+      background-color: rgba(255, 255, 255, 0.5);
+      margin: 0 auto 1.5rem;
     }
 
     .timestamp {
-      position: absolute;
-      bottom: 1rem;
-      font-size: 0.9rem;
+      font-size: 1rem;
       opacity: 0.7;
-      width: 100%;
-      text-shadow: 0 0 3px white;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 3px #fff;
     }
 
-    @media (min-aspect-ratio: 9/16) {
-      .movie-list {
-        height: 60vh;
+    @media (orientation: landscape) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      .movie .title,
+      .movie .time {
+        font-size: 1.8rem;
+      }
+      .movie .tickets {
+        font-size: 1.4rem;
       }
     }
   </style>
 </head>
 <body>
-  <img src="yarra-cinema-logo-white.png" alt="Yarra Golf Cinema" class="logo">
+  <img src="yarra-cinema-logo-white.png" alt="Yarra Golf Cinema Logo" class="logo">
   <h1>Today's Sessions</h1>
   <div class="movie-list" id="movies">Loading...</div>
   <div class="timestamp" id="timestamp"></div>
@@ -104,18 +128,19 @@
             const div = document.createElement('div');
             div.className = 'movie';
 
-            const time = new Date(movie.SessionTime).toLocaleTimeString([], {
-              hour: 'numeric',
-              minute: '2-digit'
-            });
+            const timeStr = new Date(movie.SessionTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).toLowerCase();
 
-            const badge = document.createElement('span');
-            badge.className = 'badge';
-            badge.textContent = `${movie.SeatsSold} tickets sold`;
+            div.innerHTML = `
+              <div class="time">${timeStr}:</div>
+              <div class="title">${movie.Title}</div>
+              <div class="tickets">[ ${movie.SeatsSold} tickets sold ]</div>
+            `;
 
-            div.textContent = `${time} – ${movie.Title}`;
-            div.appendChild(badge);
             container.appendChild(div);
+
+            const divider = document.createElement('div');
+            divider.className = 'divider';
+            container.appendChild(divider);
           });
         } else {
           container.innerHTML = '<p>No sessions listed for today.</p>';
