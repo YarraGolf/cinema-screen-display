@@ -170,74 +170,82 @@
   <div class="timestamp" id="timestamp"></div>
 
   <script>
-    const apiKey = "218a43bb877b542d309c2df370a8ba63";
+  const apiKey = "218a43bb877b542d309c2df370a8ba63";
 
-    fetch('https://raw.githubusercontent.com/YarraGolf/cinema-screen-display/main/data.json?nocache=' + new Date().getTime())
-      .then(res => res.json())
-      .then(async data => {
-        const container = document.getElementById('movies');
-        const timestamp = document.getElementById('timestamp');
-        const dateElement = document.getElementById('current-date');
-        container.innerHTML = '';
+  fetch('https://raw.githubusercontent.com/YarraGolf/cinema-screen-display/main/data.json?nocache=' + new Date().getTime())
+    .then(res => res.json())
+    .then(async data => {
+      const container = document.getElementById('movies');
+      const timestamp = document.getElementById('timestamp');
+      const dateElement = document.getElementById('current-date');
+      container.innerHTML = '';
 
-        const today = new Date();
-        const options = { weekday: 'long', day: 'numeric', month: 'long' };
-        dateElement.textContent = today.toLocaleDateString('en-AU', options);
+      const today = new Date();
+      const options = { weekday: 'long', day: 'numeric', month: 'long' };
+      dateElement.textContent = today.toLocaleDateString('en-AU', options);
 
-        const sessions = data?.body?.body;
+      const sessions = data?.body?.body;
+      const now = new Date(new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
 
-        const now = new Date(new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
+      if (Array.isArray(sessions) && sessions.length > 0) {
+        sessions.sort((a, b) => new Date(a.SessionTime) - new Date(b.SessionTime));
 
-        if (Array.isArray(sessions) && sessions.length > 0) {
-          sessions.sort((a, b) => new Date(a.SessionTime) - new Date(b.SessionTime));
+        for (const movie of sessions) {
+          const div = document.createElement('div');
+          div.className = 'movie';
 
-          for (const movie of sessions) {
-            const div = document.createElement('div');
-            div.className = 'movie';
+          const title = movie.Title || 'Untitled';
+          let posterUrl = 'https://via.placeholder.com/85x127?text=No+Image';
 
-            const title = movie.Title;
-            const sessionTime = new Date(new Date(movie.SessionTime).toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
-            const endTime = new Date(new Date(movie.FeatureEndTime).toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
-            const timeStr = sessionTime.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true });
-
-            let posterUrl = 'https://via.placeholder.com/85x127?text=No+Image';
-            try {
-              const tmdbRes = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&api_key=${apiKey}`);
-              const tmdbData = await tmdbRes.json();
-              const posterPath = tmdbData?.results?.[0]?.poster_path;
-              if (posterPath) {
-                posterUrl = `https://image.tmdb.org/t/p/w185${posterPath}`;
-              }
-            } catch (e) {
-              console.warn("TMDB poster fetch failed", e);
+          try {
+            const tmdbRes = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&api_key=${apiKey}`);
+            const tmdbData = await tmdbRes.json();
+            const posterPath = tmdbData?.results?.[0]?.poster_path;
+            if (posterPath) {
+              posterUrl = `https://image.tmdb.org/t/p/w185${posterPath}`;
             }
-
-            const inSession = now >= sessionTime && now < endTime;
-
-            div.innerHTML = `
-              <img class="poster" src="${posterUrl}" alt="${title} Poster">
-              <div class="details">
-                <div class="time">${timeStr}:</div>
-                <div class="title">${title}</div>
-                <div class="tags">
-                  <div class="tickets">${movie.SeatsSold} tickets sold</div>
-                  ${inSession ? '<div class="now-in-session">Now in Session</div>' : ''}
-                </div>
-              </div>
-            `;
-
-            container.appendChild(div);
+          } catch (e) {
+            console.warn("TMDB poster fetch failed", e);
           }
-        } else {
-          container.innerHTML = '<p>No sessions listed for today.</p>';
-        }
 
-        timestamp.textContent = `Last updated: ${new Date().toLocaleString('en-AU')}`;
-      })
-      .catch(err => {
-        document.getElementById('movies').textContent = 'Error loading movie listings.';
-        console.error('Failed to load movie listings:', err);
-      });
-  </script>
+          // Parse session and end times
+          let sessionTime = null;
+          let endTime = null;
+          try {
+            sessionTime = new Date(new Date(movie.SessionTime).toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
+            endTime = new Date(new Date(movie.FeatureEndTime).toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
+          } catch (e) {
+            console.warn("Failed to parse session or end time", e);
+          }
+
+          const timeStr = sessionTime ? sessionTime.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true }) : 'Time N/A';
+          const inSession = sessionTime && endTime && now >= sessionTime && now < endTime;
+
+          div.innerHTML = `
+            <img class="poster" src="${posterUrl}" alt="${title} Poster">
+            <div class="details">
+              <div class="time">${timeStr}:</div>
+              <div class="title">${title}</div>
+              <div class="tags">
+                <div class="tickets">${movie.SeatsSold || 0} tickets sold</div>
+                ${inSession ? '<div class="now-in-session">Now in Session</div>' : ''}
+              </div>
+            </div>
+          `;
+
+          container.appendChild(div);
+        }
+      } else {
+        container.innerHTML = '<p>No sessions listed for today.</p>';
+      }
+
+      timestamp.textContent = `Last updated: ${new Date().toLocaleString('en-AU')}`;
+    })
+    .catch(err => {
+      document.getElementById('movies').textContent = 'Error loading movie listings.';
+      console.error('Failed to load movie listings:', err);
+    });
+</script>
+
 </body>
 </html>
