@@ -148,3 +148,29 @@
             div.className = 'movie';
 
             const timeStr = new Date(movie.SessionTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).toLowerCase();
+
+            div.innerHTML = `
+              <div class="time">${timeStr}:</div>
+              <div class="title">${movie.Title}</div>
+              <div class="tickets">${movie.SeatsSold} tickets sold</div>
+            `;
+
+            container.appendChild(div);
+
+            const divider = document.createElement('div');
+            divider.className = 'divider';
+            container.appendChild(divider);
+          });
+        } else {
+          container.innerHTML = '<p>No sessions listed for today.</p>';
+        }
+
+        timestamp.textContent = `Last updated: ${new Date().toLocaleString()}`;
+      })
+      .catch(err => {
+        document.getElementById('movies').textContent = 'Error loading movie listings.';
+        console.error('Failed to load movie listings:', err);
+      });
+  </script>
+</body>
+</html>
