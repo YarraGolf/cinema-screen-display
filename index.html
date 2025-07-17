@@ -185,8 +185,7 @@
         dateElement.textContent = today.toLocaleDateString('en-AU', options);
 
         const sessions = data?.body?.body;
-
-        const now = new Date(new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
+        const now = new Date();
 
         if (Array.isArray(sessions) && sessions.length > 0) {
           sessions.sort((a, b) => new Date(a.SessionTime) - new Date(b.SessionTime));
@@ -195,9 +194,12 @@
             const div = document.createElement('div');
             div.className = 'movie';
 
-            const title = movie.Title || 'Untitled';
-            let posterUrl = 'https://via.placeholder.com/85x127?text=No+Image';
+            const title = movie.Title;
+            const sessionTime = new Date(movie.SessionTime);
+            const endTime = new Date(movie.FeatureEndTime);
+            const timeStr = sessionTime.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true });
 
+            let posterUrl = 'https://via.placeholder.com/85x127?text=No+Image';
             try {
               const tmdbRes = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&api_key=${apiKey}`);
               const tmdbData = await tmdbRes.json();
@@ -209,22 +211,7 @@
               console.warn("TMDB poster fetch failed", e);
             }
 
-            let sessionTime = null;
-            let endTime = null;
-            let timeStr = 'Time N/A';
-            let inSession = false;
-
-            if (movie.SessionTime && movie.FeatureEndTime) {
-              const sessionTimestamp = Date.parse(movie.SessionTime);
-              const endTimestamp = Date.parse(movie.FeatureEndTime);
-
-              if (!isNaN(sessionTimestamp) && !isNaN(endTimestamp)) {
-                sessionTime = new Date(sessionTimestamp);
-                endTime = new Date(endTimestamp);
-                timeStr = sessionTime.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true });
-                inSession = now >= sessionTime && now < endTime;
-              }
-            }
+            const inSession = now >= sessionTime && now < endTime;
 
             div.innerHTML = `
               <img class="poster" src="${posterUrl}" alt="${title} Poster">
@@ -232,7 +219,7 @@
                 <div class="time">${timeStr}:</div>
                 <div class="title">${title}</div>
                 <div class="tags">
-                  <div class="tickets">${movie.SeatsSold || 0} tickets sold</div>
+                  <div class="tickets">${movie.SeatsSold} tickets sold</div>
                   ${inSession ? '<div class="now-in-session">Now in Session</div>' : ''}
                 </div>
               </div>
