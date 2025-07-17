@@ -196,8 +196,8 @@
             div.className = 'movie';
 
             const title = movie.Title;
-            const sessionTime = new Date(movie.SessionTime);
-            const endTime = new Date(movie.FeatureEndTime);
+            const sessionTime = new Date(new Date(movie.SessionTime).toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
+            const endTime = new Date(new Date(movie.FeatureEndTime).toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
             const timeStr = sessionTime.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true });
 
             let posterUrl = 'https://via.placeholder.com/85x127?text=No+Image';
