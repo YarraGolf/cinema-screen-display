@@ -124,24 +124,23 @@
       .movie-list {
         flex-direction: row;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: flex-start;
-        gap: 1rem 1.5rem;
-        padding: 0.5rem 1rem;
+        gap: 2rem;
+        padding: 1rem;
         overflow-y: auto;
       }
 
       .movie {
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
-        text-align: center;
-        margin-bottom: 0.5rem;
-        max-width: 22%;
-        gap: 0.4rem;
+        text-align: left;
+        max-width: unset;
+        width: auto;
       }
 
       .details {
-        align-items: center;
+        align-items: flex-start;
       }
 
       .title {
@@ -153,7 +152,7 @@
       }
 
       .tags {
-        justify-content: center;
+        justify-content: flex-start;
       }
 
       .tickets, .now-in-session {
@@ -196,7 +195,6 @@
             const title = movie.Title;
             const timeStr = new Date(movie.SessionTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).toLowerCase();
 
-            // Fetch poster from TMDB
             let posterUrl = 'https://via.placeholder.com/85x127?text=No+Image';
             try {
               const tmdbRes = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&api_key=${apiKey}`);
