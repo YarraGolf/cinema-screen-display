@@ -23,7 +23,7 @@
     img.logo {
       width: auto;
       height: 90px;
-      margin-top: 2rem;
+      margin-top: 4rem;
       filter: drop-shadow(0 0 10px white);
     }
 
@@ -31,8 +31,16 @@
       font-family: "termina", sans-serif;
       font-size: 2.5rem;
       font-weight: 900;
-      margin: 1.2rem 0 1rem;
+      margin: 1.2rem 0 0.5rem;
       text-shadow: 0 0 6px #fff;
+    }
+
+    .date {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 4px #fff;
+      font-family: "ff-dax-compact-pro", sans-serif;
+      font-weight: 700;
     }
 
     .movie-list {
@@ -50,7 +58,7 @@
     .movie {
       text-align: center;
       font-size: 1rem;
-      margin-bottom: 1rem;
+      margin-bottom: 2rem;
       width: 100%;
       max-width: 90vw;
       text-shadow: 0 0 4px #fff;
@@ -58,12 +66,12 @@
 
     .movie .time {
       font-weight: bold;
-      font-size: 1.5rem;
+      font-size: 3.5rem;
     }
 
     .movie .title {
-      font-size: 2rem;
-      margin: 0.1rem 0;
+      font-size: 3.5rem;
+      margin: 0.3rem 0;
     }
 
     .movie .tickets {
@@ -71,9 +79,9 @@
       color: white;
       padding: 0.2rem 1rem;
       border-radius: 1rem;
-      font-size: 1rem;
+      font-size: 1.2rem;
       display: inline-block;
-      margin-top: 0.1rem;
+      margin-top: 0.2rem;
     }
 
     .divider {
@@ -81,7 +89,7 @@
       max-width: 400px;
       height: 1px;
       background-color: rgba(255, 255, 255, 0.4);
-      margin: 0 auto 0.2rem;
+      margin: 0 auto 0.5rem;
     }
 
     .timestamp {
@@ -99,12 +107,12 @@
         gap: 1rem;
         text-align: center;
         flex-wrap: wrap;
-        margin-bottom: -0.6rem;
+        margin-bottom: 1rem;
         padding: 0.1rem 0;
       }
 
       .movie .tickets {
-        font-size: 1rem;
+        font-size: 2.5rem;
         margin-top: 0;
       }
 
@@ -120,12 +128,17 @@
       .divider {
         margin: 0.4rem auto;
       }
+
+      .movie {
+        margin-bottom: 1rem;
+      }
     }
   </style>
 </head>
 <body>
   <img src="yarra-cinema-logo-white.png" alt="Yarra Golf Cinema Logo" class="logo">
   <h1>Today's Sessions</h1>
+  <div class="date" id="current-date">Loading date...</div>
   <div class="movie-list" id="movies">Loading...</div>
   <div class="timestamp" id="timestamp"></div>
 
@@ -135,7 +148,13 @@
       .then(data => {
         const container = document.getElementById('movies');
         const timestamp = document.getElementById('timestamp');
+        const dateElement = document.getElementById('current-date');
         container.innerHTML = '';
+
+        // Set current date display
+        const today = new Date();
+        const options = { weekday: 'long', day: 'numeric', month: 'long' };
+        dateElement.textContent = today.toLocaleDateString('en-AU', options);
 
         const sessions = data?.body?.body;
 
