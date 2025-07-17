@@ -5,115 +5,127 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Yarra Golf Cinema – Today</title>
 
-  <!-- Google Fonts fallback -->
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@500&display=swap" rel="stylesheet">
-
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      height: 100vh;
-      background: linear-gradient(135deg, #2A0052, #FF0066);
+      background: linear-gradient(180deg, #1e1e1e, #2c2c2c);
       color: #fff;
-      font-family: 'Work Sans', sans-serif;
+      font-family: 'Dax Compact Pro', Arial, sans-serif;
       text-align: center;
+      height: 100vh;
       overflow: hidden;
-    }
-
-    .glow {
-      text-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .logo {
-      margin-top: 1.5rem;
-      width: 260px;
+      width: 20vw;
+      max-width: 300px;
+      min-width: 160px;
+      margin-top: 2vh;
+      filter: drop-shadow(0 0 10px white);
     }
 
     h1 {
-      font-size: 3rem;
-      margin-top: 1rem;
-      margin-bottom: 1rem;
-      font-family: 'Termina', 'Work Sans', sans-serif;
+      font-family: 'Termina', sans-serif;
+      font-size: 5vw;
+      margin: 1.5vh 0 2vh 0;
+      text-shadow: 0 0 5px white;
     }
 
     .movie-list {
+      flex: 1;
+      width: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: center;
-      height: 70vh;
-      overflow-y: auto;
-      padding: 1rem;
+      padding: 1vh 2vw;
     }
 
     .movie {
-      font-size: 2.4rem;
-      margin: 1rem 0;
-      font-family: 'Dax Compact Pro', 'Work Sans', sans-serif;
+      font-size: 4.2vw;
+      margin: 2vh 0;
+      text-shadow: 0 0 6px white;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
-    .status {
-      display: inline-block;
-      margin-left: 1rem;
-      background-color: #fff;
-      color: #000;
-      font-size: 1rem;
-      padding: 4px 10px;
-      border-radius: 10px;
-      font-weight: bold;
+    .badge {
+      background-color: #ff6e38;
+      color: #fff;
+      font-size: 0.9em;
+      padding: 0.2em 0.6em;
+      border-radius: 8px;
+      text-shadow: none;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
     }
 
     .timestamp {
-      position: absolute;
-      bottom: 1rem;
       font-size: 1rem;
-      opacity: 0.8;
-      width: 100%;
+      opacity: 0.7;
+      margin-bottom: 1vh;
+      text-shadow: 0 0 4px white;
     }
   </style>
 </head>
 <body>
-  <!-- Cinema Logo -->
-  <img class="logo" src="https://www.yarragolf.com.au/wp-content/uploads/2022/08/YarraGolf-WhiteText-CinemaLogo.png" alt="Yarra Golf Cinema Logo" />
 
-  <h1 class="glow">Today's Sessions</h1>
-
-  <div class="movie-list" id="movies" class="glow">Loading...</div>
-  <div class="timestamp glow" id="timestamp"></div>
+  <img src="yarra-cinema-logo-white.png" alt="Yarra Golf Cinema Logo" class="logo" />
+  <h1>Today's Sessions</h1>
+  <div class="movie-list" id="movies">Loading...</div>
+  <div class="timestamp" id="timestamp"></div>
 
   <script>
     fetch('https://raw.githubusercontent.com/YarraGolf/cinema-screen-display/main/data.json')
       .then(res => res.json())
       .then(data => {
-        const container = document.getElementById('movies');
-        const timestamp = document.getElementById('timestamp');
-        container.innerHTML = '';
-
         const sessions = data?.body?.body;
 
-        if (Array.isArray(sessions) && sessions.length > 0) {
-          // Sort by time
-          sessions.sort((a, b) => new Date(a.SessionTime) - new Date(b.SessionTime));
-
-          sessions.forEach(movie => {
-            const div = document.createElement('div');
-            div.className = 'movie glow';
-            const sessionTime = new Date(movie.SessionTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-            const seatStatus = `${movie.SeatsSold} tickets sold`;
-
-            div.innerHTML = `${sessionTime} – ${movie.Title} <span class="status">${seatStatus}</span>`;
-            container.appendChild(div);
-          });
-        } else {
-          container.innerHTML = '<p>No sessions listed for today.</p>';
+        if (!Array.isArray(sessions) || sessions.length === 0) {
+          document.getElementById('movies').innerHTML = '<p>No sessions listed for today.</p>';
+          return;
         }
 
-        timestamp.textContent = `Last updated: ${new Date().toLocaleString()}`;
+        // Sort by session time
+        sessions.sort((a, b) => new Date(a.SessionTime) - new Date(b.SessionTime));
+
+        const container = document.getElementById('movies');
+        container.innerHTML = '';
+
+        sessions.forEach(movie => {
+          const div = document.createElement('div');
+          div.className = 'movie';
+
+          const sessionTime = new Date(movie.SessionTime);
+          const formattedTime = sessionTime.toLocaleTimeString([], {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          }).toLowerCase(); // e.g., "2:30pm"
+
+          const timeText = document.createTextNode(`${formattedTime} – ${movie.Title}`);
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = `${movie.SeatsSold} tickets sold`;
+
+          div.appendChild(timeText);
+          div.appendChild(badge);
+          container.appendChild(div);
+        });
+
+        document.getElementById('timestamp').textContent = `Last updated: ${new Date().toLocaleString()}`;
       })
       .catch(err => {
         document.getElementById('movies').textContent = 'Error loading movie listings.';
         console.error('Failed to load movie listings:', err);
       });
   </script>
+
 </body>
 </html>
