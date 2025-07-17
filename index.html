@@ -58,39 +58,57 @@
     }
 
     .movie {
-      text-align: center;
-      font-size: 1rem;
-      margin-bottom: 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.4rem;
       width: 100%;
       max-width: 90vw;
       text-shadow: 0 0 4px #fff;
     }
 
     .poster {
-      height: 200px;
+      width: 100px;
+      height: auto;
       border-radius: 0.5rem;
-      box-shadow: 0 0 10px rgba(255,255,255,0.4);
-      margin-bottom: 0.5rem;
+      box-shadow: 0 0 10px #000;
+      flex-shrink: 0;
     }
 
-    .time {
+    .movie-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .movie-info .time {
       font-weight: bold;
-      font-size: 1.5rem;
+      font-size: 1.8rem;
     }
 
-    .title {
-      font-size: 2rem;
-      margin: 0.1rem 0;
+    .movie-info .title {
+      font-size: 2.2rem;
+      margin: 0.2rem 0 0.5rem;
     }
 
-    .tickets {
+    .movie-info .tags {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .tickets,
+    .session-tag {
       background-color: #ff6e38;
       color: white;
       padding: 0.2rem 1rem;
       border-radius: 1rem;
       font-size: 1rem;
       display: inline-block;
-      margin-top: 0.1rem;
+    }
+
+    .session-tag {
+      background-color: #ed008c;
     }
 
     .divider {
@@ -98,7 +116,7 @@
       max-width: 400px;
       height: 1px;
       background-color: rgba(255, 255, 255, 0.4);
-      margin: 0.4rem auto;
+      margin: 0.2rem auto;
     }
 
     .timestamp {
@@ -106,6 +124,37 @@
       opacity: 0.6;
       margin-bottom: 0.5rem;
       text-shadow: 0 0 2px #fff;
+    }
+
+    @media (orientation: landscape) {
+      .poster {
+        width: 90px;
+      }
+
+      .movie-info .time {
+        font-size: 1.6rem;
+      }
+
+      .movie-info .title {
+        font-size: 2rem;
+      }
+
+      .tickets,
+      .session-tag {
+        font-size: 0.9rem;
+      }
+
+      h1 {
+        font-size: 2.4rem;
+      }
+
+      img.logo {
+        height: 80px;
+      }
+
+      .divider {
+        margin: 0.4rem auto;
+      }
     }
   </style>
 </head>
@@ -118,18 +167,6 @@
 
   <script>
     const TMDB_API_KEY = '218a43bb877b542d309c2df370a8ba63';
-
-    async function fetchPoster(title) {
-      try {
-        const response = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}`);
-        const data = await response.json();
-        const posterPath = data?.results?.[0]?.poster_path;
-        return posterPath ? `https://image.tmdb.org/t/p/w300${posterPath}` : null;
-      } catch (e) {
-        console.error('TMDB error:', e);
-        return null;
-      }
-    }
 
     fetch('https://raw.githubusercontent.com/YarraGolf/cinema-screen-display/main/data.json?nocache=' + new Date().getTime())
       .then(res => res.json())
@@ -144,6 +181,7 @@
         dateElement.textContent = today.toLocaleDateString('en-AU', options);
 
         const sessions = data?.body?.body;
+
         if (Array.isArray(sessions) && sessions.length > 0) {
           sessions.sort((a, b) => new Date(a.SessionTime) - new Date(b.SessionTime));
 
@@ -152,19 +190,27 @@
             div.className = 'movie';
 
             const timeStr = new Date(movie.SessionTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).toLowerCase();
-            const posterUrl = await fetchPoster(movie.Title);
+            const isNowShowing = new Date(movie.SessionTime) <= new Date();
+
+            const tmdbRes = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(movie.Title)}&api_key=${TMDB_API_KEY}`);
+            const tmdbData = await tmdbRes.json();
+            const posterPath = tmdbData?.results?.[0]?.poster_path;
+            const posterUrl = posterPath ? `https://image.tmdb.org/t/p/w200${posterPath}` : '';
 
             div.innerHTML = `
-              ${posterUrl ? `<img src="${posterUrl}" class="poster" alt="${movie.Title} Poster">` : ''}
-              <div class="time">${timeStr}:</div>
-              <div class="title">${movie.Title}</div>
-              <div class="tickets">${movie.SeatsSold} tickets sold</div>
+              <img src="${posterUrl}" alt="${movie.Title}" class="poster">
+              <div class="movie-info">
+                <div class="time">${timeStr}:</div>
+                <div class="title">${movie.Title}</div>
+                <div class="tags">
+                  <div class="tickets">${movie.SeatsSold} tickets sold</div>
+                  ${isNowShowing ? `<div class="session-tag">in session</div>` : ''}
+                </div>
+              </div>
             `;
 
             container.appendChild(div);
-            const divider = document.createElement('div');
-            divider.className = 'divider';
-            container.appendChild(divider);
+            container.appendChild(Object.assign(document.createElement('div'), { className: 'divider' }));
           }
         } else {
           container.innerHTML = '<p>No sessions listed for today.</p>';
