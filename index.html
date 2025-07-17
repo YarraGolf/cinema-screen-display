@@ -186,6 +186,8 @@
 
         const sessions = data?.body?.body;
 
+        const now = new Date(new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
+
         if (Array.isArray(sessions) && sessions.length > 0) {
           sessions.sort((a, b) => new Date(a.SessionTime) - new Date(b.SessionTime));
 
@@ -194,7 +196,8 @@
             div.className = 'movie';
 
             const title = movie.Title;
-            const timeStr = new Date(movie.SessionTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).toLowerCase();
+            const sessionTime = new Date(movie.SessionTime);
+            const timeStr = sessionTime.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', hour12: true });
 
             let posterUrl = 'https://via.placeholder.com/85x127?text=No+Image';
             try {
@@ -208,7 +211,7 @@
               console.warn("TMDB poster fetch failed", e);
             }
 
-            const inSession = new Date() >= new Date(movie.SessionTime);
+            const inSession = now >= sessionTime;
 
             div.innerHTML = `
               <img class="poster" src="${posterUrl}" alt="${title} Poster">
