@@ -208,7 +208,11 @@
               console.warn("TMDB poster fetch failed", e);
             }
 
-            const inSession = new Date() >= new Date(movie.SessionTime);
+            const currentTime = new Date().toLocaleString("en-AU", { timeZone: "Australia/Sydney" });
+            const now = new Date(currentTime);
+            const sessionTime = new Date(movie.SessionTime);
+            const inSession = now >= sessionTime;
+
 
             div.innerHTML = `
               <img class="poster" src="${posterUrl}" alt="${title} Poster">
