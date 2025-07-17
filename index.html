@@ -14,10 +14,10 @@
       font-family: "ff-dax-compact-pro", sans-serif;
       height: 100vh;
       width: 100vw;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
+      overflow: hidden;
     }
 
     img.logo {
@@ -31,7 +31,7 @@
       font-family: "termina", sans-serif;
       font-size: 3rem;
       font-weight: 900;
-      margin: 1.2rem 0 0.5rem;
+      margin: 1.2rem 0 0.4rem;
       text-shadow: 0 0 6px #fff;
       text-align: center;
       line-height: 1;
@@ -39,84 +39,82 @@
 
     .date {
       font-size: 1.4rem;
+      font-weight: 900;
+      font-family: "termina", sans-serif;
       margin-bottom: 0.5rem;
       text-shadow: 0 0 4px #fff;
-      font-family: "termina", sans-serif;
-      font-weight: 900;
-      margin-top: -0.5rem;
     }
 
     .movie-list {
       flex-grow: 1;
       display: flex;
       flex-direction: column;
+      justify-content: flex-start;
       align-items: center;
       width: 100%;
       padding: 0 1rem;
-      overflow: hidden;
+      overflow-y: auto;
+      margin-bottom: 0.3rem;
     }
 
     .movie {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
+      justify-content: flex-start;
       gap: 1rem;
-      margin-bottom: 1rem;
+      text-align: left;
+      margin-bottom: 2rem;
       max-width: 90vw;
-      width: 100%;
-      text-shadow: 0 0 4px #fff;
     }
 
     .poster {
       width: 85px;
       height: auto;
-      flex-shrink: 0;
       border-radius: 4px;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 8px rgba(0,0,0,0.5);
     }
 
-    .movie-info {
+    .details {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      flex: 1;
     }
 
-    .movie-info .time {
-      font-weight: bold;
+    .time {
       font-size: 1.5rem;
+      font-weight: bold;
     }
 
-    .movie-info .title {
+    .title {
       font-size: 2rem;
-      margin: 0.1rem 0;
-      line-height: 1.2;
+      margin: 0.2rem 0;
     }
 
     .tags {
       display: flex;
       gap: 0.5rem;
-      margin-top: 0.2rem;
       flex-wrap: wrap;
     }
 
-    .tickets, .in-session {
+    .tickets, .now-in-session {
       padding: 0.2rem 1rem;
       border-radius: 1rem;
       font-size: 1rem;
-      display: inline-block;
-      color: white;
+      font-weight: bold;
+      white-space: nowrap;
     }
 
     .tickets {
       background-color: #ff6e38;
+      color: #fff;
     }
 
-    .in-session {
+    .now-in-session {
       background-color: #31bc76;
+      color: #fff;
     }
 
     .timestamp {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       opacity: 0.6;
       margin-bottom: 0.5rem;
       text-shadow: 0 0 2px #fff;
@@ -128,52 +126,36 @@
         flex-wrap: wrap;
         justify-content: center;
         align-items: flex-start;
-        gap: 1rem;
+        gap: 1.5rem 2rem;
         padding: 0.5rem;
       }
 
       .movie {
         flex-direction: column;
         align-items: center;
+        text-align: center;
+        margin-bottom: 0.8rem;
         max-width: 22%;
-        margin-bottom: 0.5rem;
       }
 
-      .movie-info {
+      .details {
         align-items: center;
-        text-align: center;
+      }
+
+      .title {
+        font-size: 1.8rem;
+      }
+
+      .time {
+        font-size: 1.4rem;
       }
 
       .tags {
         justify-content: center;
       }
 
-      .tickets, .in-session {
+      .tickets, .now-in-session {
         font-size: 0.9rem;
-      }
-
-      h1 {
-        font-size: 2.4rem;
-        margin: 1rem 0 0.5rem;
-      }
-
-      img.logo {
-        height: 80px;
-      }
-    }
-
-    @media (orientation: portrait) {
-      .movie {
-        align-items: flex-start;
-        justify-content: flex-start;
-      }
-
-      .poster {
-        margin-top: 0.2rem;
-      }
-
-      .movie-info {
-        align-items: flex-start;
       }
     }
   </style>
@@ -186,20 +168,7 @@
   <div class="timestamp" id="timestamp"></div>
 
   <script>
-    const API_KEY = '218a43bb877b542d309c2df370a8ba63';
-
-    async function fetchPoster(title) {
-      try {
-        const url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(title)}`;
-        const res = await fetch(url);
-        const json = await res.json();
-        const posterPath = json?.results?.[0]?.poster_path;
-        return posterPath ? `https://image.tmdb.org/t/p/w200${posterPath}` : null;
-      } catch (err) {
-        console.error('Error fetching poster:', err);
-        return null;
-      }
-    }
+    const apiKey = "218a43bb877b542d309c2df370a8ba63";
 
     fetch('https://raw.githubusercontent.com/YarraGolf/cinema-screen-display/main/data.json?nocache=' + new Date().getTime())
       .then(res => res.json())
@@ -219,19 +188,35 @@
           sessions.sort((a, b) => new Date(a.SessionTime) - new Date(b.SessionTime));
 
           for (const movie of sessions) {
-            const posterUrl = await fetchPoster(movie.Title);
-
             const div = document.createElement('div');
             div.className = 'movie';
 
+            const title = movie.Title;
+            const timeStr = new Date(movie.SessionTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).toLowerCase();
+
+            // Fetch poster from TMDB
+            let posterUrl = 'https://via.placeholder.com/85x127?text=No+Image';
+            try {
+              const tmdbRes = await fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(title)}&api_key=${apiKey}`);
+              const tmdbData = await tmdbRes.json();
+              const posterPath = tmdbData?.results?.[0]?.poster_path;
+              if (posterPath) {
+                posterUrl = `https://image.tmdb.org/t/p/w185${posterPath}`;
+              }
+            } catch (e) {
+              console.warn("TMDB poster fetch failed", e);
+            }
+
+            const inSession = new Date() >= new Date(movie.SessionTime);
+
             div.innerHTML = `
-              <img class="poster" src="${posterUrl || 'fallback.jpg'}" alt="${movie.Title}">
-              <div class="movie-info">
-                <div class="time">${new Date(movie.SessionTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).toLowerCase()}:</div>
-                <div class="title">${movie.Title}</div>
+              <img class="poster" src="${posterUrl}" alt="${title} Poster">
+              <div class="details">
+                <div class="time">${timeStr}:</div>
+                <div class="title">${title}</div>
                 <div class="tags">
-                  <span class="tickets">${movie.SeatsSold} tickets sold</span>
-                  ${new Date(movie.SessionTime) <= today ? '<span class="in-session">Now in Session</span>' : ''}
+                  <div class="tickets">${movie.SeatsSold} tickets sold</div>
+                  ${inSession ? '<div class="now-in-session">Now in Session</div>' : ''}
                 </div>
               </div>
             `;
@@ -242,7 +227,7 @@
           container.innerHTML = '<p>No sessions listed for today.</p>';
         }
 
-        timestamp.textContent = `Last updated: ${new Date().toLocaleString()}`;
+        timestamp.textContent = `Last updated: ${new Date().toLocaleString('en-AU')}`;
       })
       .catch(err => {
         document.getElementById('movies').textContent = 'Error loading movie listings.';
